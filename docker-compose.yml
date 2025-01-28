@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - VITE_SUPABASE_URL=${VITE_SUPABASE_URL}
+      - VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY}
+    depends_on:
+      - supabase
+    restart: unless-stopped
+
+  supabase:
+    image: supabase/supabase-docker:latest
+    ports:
+      - "54321:54321"  # REST API
+      - "54322:54322"  # Studio
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-your-super-secret-password}
+      JWT_SECRET: ${JWT_SECRET:-your-super-secret-jwt-token}
+      DASHBOARD_USERNAME: ${DASHBOARD_USERNAME:-admin}
+      DASHBOARD_PASSWORD: ${DASHBOARD_PASSWORD:-admin}
+    volumes:
+      - supabase-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  supabase-data:
